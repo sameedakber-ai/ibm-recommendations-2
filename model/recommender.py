@@ -15,6 +15,11 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 import re
 
+
+# Read data from database table
+engine = create_engine('sqlite:///data/data.db')
+df = pd.read_sql_table('user-article-interactions', engine)
+
 # Create collaborative filtering class
 class Collaborative:
     def __init__(self, df, user_id):
