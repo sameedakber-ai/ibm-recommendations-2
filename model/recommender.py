@@ -56,7 +56,8 @@ class Collaborative:
             if len(recommendations) >= n_rec:
                 break
         article_titles = df.doc_full_name[df.article_id.isin(recommendations)].unique().tolist()
-        return article_titles
+        article_descriptions = df.doc_description[df.article_id.isin(recommendations)].unique().tolist()
+        return article_titles, article_descriptions
 
 
 class Content:
