@@ -23,7 +23,7 @@ df = pd.read_sql_table('user-article-interactions', engine)
 # Create collaborative filtering class
 class Collaborative:
     def __init__(self, df, user_id):
-        self.df = df
+        self.df = df.dropna()
         self.user_id = user_id
 
     def get_user_by_item(self):
@@ -113,6 +113,3 @@ class Content:
         similar_article_rows = np.where(similarity_mat[article_row] >= np.percentile(similarity_mat[article_row], 99))[1]
         similar_articles = self.df.iloc[similar_article_rows].doc_full_name.tolist()
         return similar_articles[:n_recs]
-
-recs = Collaborative(df, 1)
-print(recs.make_collaborative_recs())
