@@ -33,4 +33,4 @@ df_merged = df.drop('title', axis=1).merge(df_content[['article_id', 'doc_full_n
 
 # Save data to database
 engine = create_engine('sqlite:///data/data.db')
-df_merged.to_sql('categories', engine, index=False, if_exists='replace')
+df_merged.to_sql('user-article-interactions', engine, index=False, if_exists='replace')
