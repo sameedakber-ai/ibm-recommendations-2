@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -17,7 +17,14 @@ class User(db.Model):
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return render_template('index.html')
+
+
+@app.route('/signin', methods=['POST', 'GET'])
+def signin():
+    if request.method == 'POST':
+        userid = request.form['userid']
+
 
 
 if __name__ == '__main__':
