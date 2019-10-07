@@ -14,8 +14,7 @@ df_content.drop_duplicates(inplace=True, keep='first')
 df_content.drop_duplicates(subset='article_id', inplace=True, keep='first')
 
 # Format matching columns to same type
-df = df.astype({'article_id': int}).astype({'article_id': str})
-df_content = df_content.astype({'article_id': str})
+df = df.astype({'article_id': int})
 
 # Make User-id column in df to identify users
 user_id_dict = dict()
