@@ -32,5 +32,5 @@ df.drop('email', axis=1, inplace=True)
 df_merged = df.drop('title', axis=1).merge(df_content[['article_id', 'doc_full_name', 'doc_description']], on='article_id', how='inner')
 
 # Save data to database
-engine = create_engine('sqlite:///data.db')
+engine = create_engine('sqlite:///data/data.db')
 df_merged.to_sql('categories', engine, index=False, if_exists='replace')
