@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+
+from model.recommender import *
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -23,7 +24,13 @@ def hello_world():
 @app.route('/signin', methods=['POST', 'GET'])
 def signin():
     if request.method == 'POST':
-        userid = request.form['userid']
+        user_id = request.form['userid']
+        if user_id in df.user_id.tolist():
+            recs = Collaborative(df, user_id)
+            return render_template('user.html', user_id=user_id, recs=recs)
+        else:
+            return render_template('newuser.html', user_id=user_id)
+
 
 
 
