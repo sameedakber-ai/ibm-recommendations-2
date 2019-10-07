@@ -2,9 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>IBM Recommendations</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
 </head>
 <body>
+
+    <div class="jumbotron">
+        <div class="container">
+            <h1 class="text-center">Welcome to the WebApp</h1>
+            <p class="lead">Please sign in or sign up for tailored article recommendations</p>
+                <div class="row">
+                    <div class="col-lg-12 form-control-lg">
+                        <form action="/signin" method="POST">
+                            <input class="form-control form-control-lg" type="text" name="userid" placeholder="User ID">
+                            <div class="col-lg-offset-5 text-center">
+                                <button class="btn btn-lg btn-success" type="submit">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+        </div>
+    </div>
 
 </body>
 </html>
