@@ -28,7 +28,7 @@ df.drop('email', axis=1, inplace=True)
 # <----- Clean data [finished] ----->
 
 # Merge data-sets on article id
-df_merged = df.drop('title', axis=1).merge(df_content[['article_id', 'doc_full_name', 'doc_description']], on='article_id', how='inner')
+df_merged = df.drop('title', axis=1).merge(df_content[['article_id', 'doc_full_name', 'doc_description']], on='article_id', how='outer')
 
 # Save data to database
 engine = create_engine('sqlite:///data/data.db')
