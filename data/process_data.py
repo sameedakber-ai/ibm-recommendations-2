@@ -1,7 +1,10 @@
 import numpy as np
 import pandas as pd
+pd.options.mode.chained_assignment = None
 from sqlalchemy import create_engine
 from googlesearch import search
+from tqdm import tqdm
+tqdm.pandas()
 
 # Read data
 df = pd.read_csv('data/user-item-interactions.csv')
@@ -32,7 +35,14 @@ df_content.doc_description[df_content.doc_description.isnull()] = ''
 
 # Extract article links through google searches
 doc_identifier = df_content.doc_full_name + ' ' + df_content.doc_description
-df_content['link'] = doc_identifier.apply(lambda x: list(search(x, tld="com", num=5, stop=1, pause=2.0))[0])
+def extract_link(text):
+
+	try:
+		link = list(search(text, tld="com", num=1, stop=1))[0]
+	except:
+		link = "#"
+	return link
+df_content['link'] = doc_identifier.progress_apply(extract_link)
 # <----- Clean data [finished] ----->
 
 # Merge data-sets on article id
