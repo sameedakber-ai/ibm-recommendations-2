@@ -1,13 +1,22 @@
 {% extends 'index.html' %}
 
+{% block hide %}
+{% endblock %}
+
 {% block content %}
 
     <h1 class="text-center">Welcome back user {{ user_id }}</h1>
     <br>
-    <br>
-    <p class="text-center lead font-weight-bold">Here are some article recommendations for you</p>
-    {% for rec in recs %}
-        <p class="text-center">rec</p>
-    {% endfor %}
+    <p class="text-center lead font-italic">Here are the top 15 recommendations for you</p>
+    <div class="overflow-auto list-group" style="height: 250px;">
+        {% for rec,descr in recs %}
+            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ rec }}</h5>
+                </div>
+                <p class="mb-1">{{ descr }}</p>
+            </a>
+        {% endfor %}
+    </div>
 
 {% endblock %}
