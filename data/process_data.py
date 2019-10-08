@@ -12,7 +12,7 @@ df_content = pd.read_csv('data/articles.csv')
 del df['Unnamed: 0']
 del df_content['Unnamed: 0']
 
-# <----- Clean data [start] ----->
+# <----- CLEAN DATA [start] ----->
 # Remove duplicate articles
 df_content.drop_duplicates(inplace=True, keep='first')
 df_content.drop_duplicates(subset='article_id', inplace=True, keep='first')
@@ -35,15 +35,16 @@ df_content.doc_description[df_content.doc_description.isnull()] = ''
 
 # Extract article links through google searches
 doc_identifier = df_content.doc_full_name + ' ' + df_content.doc_description
-def extract_link(text):
 
+def extract_link(text):
 	try:
-		link = list(search(text, tld="com", num=1, stop=1))[0]
+		link = list(search(text, tld="com", num=2, stop=2))[0]
 	except:
-		link = "#"
+		link = "{{ url_for('notfound') }}"
 	return link
+
 df_content['link'] = doc_identifier.progress_apply(extract_link)
-# <----- Clean data [finished] ----->
+# <----- CLEAN DATA [finished] ----->
 
 # Merge data-sets on article id
 df_merged = df.drop('title', axis=1).merge(df_content[['article_id', 'doc_full_name', 'doc_description', 'link']], on='article_id', how='outer')
