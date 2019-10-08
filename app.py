@@ -39,6 +39,10 @@ def show_article_id(article_id):
         return render_template('article.html', )
 
 
+@app.route('/notfound')
+def notfound():
+    return render_template('lost.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
