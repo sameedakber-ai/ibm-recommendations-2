@@ -56,11 +56,14 @@ class Collaborative:
             if len(recommendations) >= n_rec:
                 break
         article_titles = df.doc_full_name[df.article_id.isin(recommendations)].unique().tolist()
-        article_descriptions = df.doc_description[df.article_id.isin(recommendations)].unique().tolist()
+        #article_descriptions = df.doc_description[df.article_id.isin(recommendations)].unique().tolist()
         links = dict()
+        descr = dict()
         for title in article_titles:
             links[title] = df.link[df.doc_full_name==title].tolist()[0]
+            descr[title] = df.doc_description[df.doc_full_name==title].tolist()[0]
         article_links = links.values()
+        article_descriptions = descr.values()
         #article_links = df.link[df.article_id.isin(recommendations)].unique().tolist()
         return zip(article_titles, article_descriptions, article_links)
 
@@ -119,6 +122,3 @@ class Content:
         similar_article_rows = np.where(similarity_mat[article_row] >= np.percentile(similarity_mat[article_row], 99))[1]
         similar_articles = self.df.iloc[similar_article_rows].doc_full_name.tolist()
         return similar_articles[:n_recs]
-
-#recs = Collaborative(df, 27)
-#yes = list(recs.make_collaborative_recs(15))
