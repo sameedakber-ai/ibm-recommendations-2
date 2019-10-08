@@ -52,12 +52,11 @@ def extract_link(text):
     try:
         link = list(search(text, tld="com", num=1, stop=1))[0]
     except:
-        link = "{{ url_for('notfound') }}"
+        link = "http://www.google.com"
     return link
-df_subset['link'] = doc_identifier.progress_apply(extract_link)
+df_subset['link'] = doc_identifier[:100].progress_apply(extract_link)
 
 df_merged['link'] = df_merged.article_id.apply(lambda x: df_subset.link[df_subset.article_id==x].tolist()[0])
-
 # Save data to database
 engine = create_engine('sqlite:///data/data.db')
 df_merged.to_sql('user-article-interactions', engine, index=False, if_exists='replace')
