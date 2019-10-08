@@ -9,8 +9,8 @@
     <br>
     <p class="text-center lead font-italic">Here are the top 15 recommendations for you</p>
     <div class="overflow-auto list-group" style="height: 250px;">
-        {% for rec,descr in recs %}
-            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+        {% for rec,descr,link in recs %}
+            <a href={{ link }} class="list-group-item list-group-item-action flex-column align-items-start">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">{{ rec }}</h5>
                 </div>

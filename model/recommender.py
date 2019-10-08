@@ -57,7 +57,8 @@ class Collaborative:
                 break
         article_titles = df.doc_full_name[df.article_id.isin(recommendations)].unique().tolist()
         article_descriptions = df.doc_description[df.article_id.isin(recommendations)].unique().tolist()
-        return zip(article_titles, article_descriptions)
+        article_links = df.link[df.article_id.isin(recommendations)].unique().tolist()
+        return zip(article_titles, article_descriptions, article_links)
 
 
 class Content:
