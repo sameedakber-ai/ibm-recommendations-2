@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
+from googlesearch import search
 
 # Read data
 df = pd.read_csv('data/user-item-interactions.csv')
@@ -25,10 +26,17 @@ for email in df.email:
 		i+=1
 df['user_id'] = df.email.apply(lambda x: user_id_dict[x])
 df.drop('email', axis=1, inplace=True)
+
+# Fill in missing document descriptions with empty strings
+df_content.doc_description[df_content.doc_description.isnull()] = ''
+
+# Extract article links through google searches
+doc_identifier = df_content.doc_full_name + ' ' + df_content.doc_description
+df_content['link'] = doc_identifier.apply(lambda x: list(search(x, tld="com", num=5, stop=1, pause=2.0))[0])
 # <----- Clean data [finished] ----->
 
 # Merge data-sets on article id
-df_merged = df.drop('title', axis=1).merge(df_content[['article_id', 'doc_full_name', 'doc_description']], on='article_id', how='outer')
+df_merged = df.drop('title', axis=1).merge(df_content[['article_id', 'doc_full_name', 'doc_description', 'link']], on='article_id', how='outer')
 
 # Save data to database
 engine = create_engine('sqlite:///data/data.db')
