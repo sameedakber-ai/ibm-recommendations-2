@@ -32,22 +32,27 @@ df.drop('email', axis=1, inplace=True)
 
 # Fill in missing document descriptions with empty strings
 df_content.doc_description[df_content.doc_description.isnull()] = ''
+# <----- CLEAN DATA [finished] ----->
+
+# Merge data-sets on article id
+df_merged = df.drop('title', axis=1).merge(df_content[['article_id', 'doc_full_name', 'doc_description']], on='article_id', how='outer')
+
+# Fill in missing document titles
+no_title_ids = df_merged.article_id[df_merged.doc_full_name.isnull()].unique().tolist()
+for id in no_title_ids:
+	title = df.title[df.article_id == id].tolist()[0]
+	df_merged.doc_full_name[df_merged.article_id == id] = title
+df_merged.doc_description[df_merged.doc_description.isnull()] = ''
 
 # Extract article links through google searches
-doc_identifier = df_content.doc_full_name + ' ' + df_content.doc_description
-
+doc_identifier = df_merged.doc_full_name + ' ' + df_merged.doc_description
 def extract_link(text):
 	try:
 		link = list(search(text, tld="com", num=2, stop=2))[0]
 	except:
 		link = "{{ url_for('notfound') }}"
 	return link
-
-df_content['link'] = doc_identifier.progress_apply(extract_link)
-# <----- CLEAN DATA [finished] ----->
-
-# Merge data-sets on article id
-df_merged = df.drop('title', axis=1).merge(df_content[['article_id', 'doc_full_name', 'doc_description', 'link']], on='article_id', how='outer')
+df_merged['link'] = doc_identifier.progress_apply(extract_link)
 
 # Save data to database
 engine = create_engine('sqlite:///data/data.db')
