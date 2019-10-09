@@ -10,7 +10,7 @@
     <p class="text-center lead font-italic">Here are the top 15 recommendations for you</p>
     <div class="overflow-auto list-group" style="height: 250px;">
         {% for rec,descr,link in recs %}
-            <a href={{ link }} class="list-group-item list-group-item-action flex-column align-items-start">
+            <a href="{{ url_for('updatedatabase', subpath=link, id=user_id, article=rec) }}" class="list-group-item list-group-item-action flex-column align-items-start">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">{{ rec }}</h5>
                 </div>
@@ -19,7 +19,21 @@
         {% endfor %}
     </div>
 
+    <hr class="my-5">
+
+    <p class="text-center lead font-italic">Your recently read articles</p>
+    <div class="list-group">
+        {% for article, time, link in result %}
+            <a href="{{ url_for('updatedatabase', subpath=link, id=user_id, article=article) }}" class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ article }}</h5>
+                    <small>{{ time }}</small>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+
 {% endblock %}
 
-{% block body %}
+{% block redirect %}
 {% endblock %}
