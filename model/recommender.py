@@ -125,7 +125,13 @@ class Content:
 
 def get_top_ranked_articles(n=10):
     top_articles = df.doc_full_name.value_counts().sort_values(ascending=False).index.tolist()[:n]
-    top_articles_desc = df.doc_description[df.doc_full_name.isin(top_articles)].drop_duplicates(keep='first').tolist()
-    top_articles_links = df.link[df.doc_full_name.isin(top_articles)].drop_duplicates(keep='first').tolist()
-    return zip(top_articles, top_articles_desc, top_articles_links)
-
+    links = dict()
+    descr = dict()
+    for title in top_articles:
+        links[title] = df.link[df.doc_full_name == title].tolist()[0]
+        descr[title] = df.doc_description[df.doc_full_name == title].tolist()[0]
+        if links[title]=='':
+            links[title] = '#'
+    top_links = links.values()
+    top_descriptions = descr.values()
+    return zip(top_articles, top_descriptions, top_links)
