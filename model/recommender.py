@@ -23,7 +23,7 @@ df = pd.read_sql_table('user-article-interactions', engine)
 # Create collaborative filtering class
 class Collaborative:
     def __init__(self, df, user_id):
-        self.df = df.dropna()
+        self.df = df[['article_id', 'user_id']].dropna()
         self.user_id = user_id
 
     def get_user_by_item(self):
