@@ -125,5 +125,7 @@ class Content:
 
 def get_top_ranked_articles(n=10):
     top_articles = df.doc_full_name.value_counts().sort_values(ascending=False).index.tolist()[:n]
-    return top_articles
+    top_articles_desc = df.doc_description[df.doc_full_name.isin(top_articles)].drop_duplicates(keep='first').tolist()
+    top_articles_links = df.link[df.doc_full_name.isin(top_articles)].drop_duplicates(keep='first').tolist()
+    return zip(top_articles, top_articles_desc, top_articles_links)
 
