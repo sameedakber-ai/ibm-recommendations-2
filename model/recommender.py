@@ -122,3 +122,8 @@ class Content:
         similar_article_rows = np.where(similarity_mat[article_row] >= np.percentile(similarity_mat[article_row], 99))[1]
         similar_articles = self.df.iloc[similar_article_rows].doc_full_name.tolist()
         return similar_articles[:n_recs]
+
+def get_top_ranked_articles(n=10):
+    top_articles = df.doc_full_name.value_counts().sort_values(ascending=False).index.tolist()[:n]
+    return top_articles
+
