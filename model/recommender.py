@@ -17,6 +17,8 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 # Import OS and pickling libraries
 import cloudpickle
 import os
+
+# Get current path
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Create collaborative filtering class
@@ -37,7 +39,7 @@ class Collaborative:
 
     """
     def __init__(self, df, user_id):
-        self.df = df.dropna()
+        self.df = df.dropna(subset=['user_id']).reset_index(drop=True)
         self.user_id = user_id
 
     def get_user_by_item(self):
