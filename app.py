@@ -98,13 +98,16 @@ def updatedatabase(subpath, id, article):
         # Add a new row to both the dataframe and database table
         # to record that the user has read the article
         link = subpath
-        print(df[df.doc_full_name==article])
-        descr = df.doc_description[df.doc_full_name==article].tolist()[0]
-        article_id = df.article_id[df.doc_full_name==article].tolist()[0]
-        df = df.append({'user_id': id, 'article_id':article_id, 'doc_full_name': article, 'link':link, 'doc_description':descr}, ignore_index=True)
+        is_broken=False
+        try:
+            descr = df.doc_description[df.doc_full_name==article].tolist()[0]
+            article_id = df.article_id[df.doc_full_name==article].tolist()[0]
+            df = df.append({'user_id': id, 'article_id':article_id, 'doc_full_name': article, 'link':link, 'doc_description':descr}, ignore_index=True)
+            session.execute(table.insert().values(user_id=id, article_id=article_id, doc_full_name=article, doc_description=descr, link=link))
+            session.commit()
+        except:
+            is_broken = True
 
-        session.execute(table.insert().values(user_id=id, article_id=article_id, doc_full_name=article, doc_description=descr, link=link))
-        session.commit()
 
     user = User.query.filter_by(id=id).all()
     if article not in [data.article for data in user]:
@@ -119,7 +122,10 @@ def updatedatabase(subpath, id, article):
         db.session.commit()
 
     # Redirect to the article link once both databases are updated
-    return redirect(subpath)
+    if not is_broken:
+        return redirect(subpath)
+    else:
+        return('#')
 
 # Run server
 if __name__ == '__main__':
