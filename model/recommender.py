@@ -15,6 +15,9 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 import re
 import cloudpickle
 
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
 # Create collaborative filtering class
 class Collaborative:
     def __init__(self, df, user_id):
@@ -112,12 +115,12 @@ class Content:
 
     def make_content_recs(self, m=10):
         try:
-            similarity_mat = cloudpickle.load(open('content_similarity', "rb"))
+            similarity_mat = cloudpickle.load(open(os.path.join(dir_path, 'content_similarity'), "rb"))
         except:
             indicator_mat = self.get_bag_of_words()
             similarity_mat = np.dot(indicator_mat, indicator_mat.T)
-            cloudpickle.dump(similarity_mat, open('content_similarity', "wb"))
-            similarity_mat = cloudpickle.load(open('content_similarity', "rb"))
+            cloudpickle.dump(similarity_mat, open(os.path.join(dir_path, 'content_similarity'), "wb"))
+            similarity_mat = cloudpickle.load(open(os.path.join(dir_path, 'content_similarity'), "rb"))
 
         user_article_rows = self.df[self.df.doc_full_name.isin(self.user_articles)].index
 
