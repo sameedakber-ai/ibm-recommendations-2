@@ -52,9 +52,9 @@ def extract_link(text):
     try:
         link = list(search(text, tld="com", num=1, stop=1))[0]
     except:
-        link = "http://www.google.com"
+        link = "https://www.google.com"
     return link
-df_subset['link'] = doc_identifier[:100].progress_apply(extract_link)
+df_subset['link'] = doc_identifier.progress_apply(extract_link)
 
 df_merged['link'] = df_merged.article_id.apply(lambda x: df_subset.link[df_subset.article_id==x].tolist()[0])
 # Save data to database
