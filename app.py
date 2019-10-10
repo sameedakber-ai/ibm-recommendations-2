@@ -1,26 +1,12 @@
 # Import flask libraries
 from flask import Flask, request, render_template, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import desc
-from datetime import  datetime
 
-# Import data management libraries
-import numpy as np
-import pandas as pd
+from sqlalchemy import desc, sql
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 
-# Import NLP and ML libraries
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize, sent_tokenize
-nltk.download(['stopwords', 'punkt', 'averaged_perceptron_tagger', 'wordnet'])
-
-from sklearn.pipeline import Pipeline, FeatureUnion
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-
-import re
+from datetime import  datetime
 
 from model.recommender import *
 
@@ -30,6 +16,8 @@ md = MetaData(engine)
 table = Table('user-article-interactions', md, autoload=True)
 Session = sessionmaker(bind=engine)
 session = Session()
+
+# Create dataframe from sqlite database
 df = pd.read_sql_table('user-article-interactions', engine)
 
 # Initialize application and link to database
@@ -80,7 +68,7 @@ def welcomeuser(userid):
 
 @app.route('/newuser-<int:userid>', methods=['POST', 'GET'])
 def newuser(userid):
-    most_popular_articles = get_top_ranked_articles(10)
+    most_popular_articles = get_top_ranked_articles(df, 10)
     return render_template('newuser.html', recs = most_popular_articles, id=userid)
 
 @app.route('/<path:subpath>-<int:id>-<article>', methods=['GET', 'POST'])
@@ -91,8 +79,7 @@ def updatedatabase(subpath, id, article):
         descr = df.doc_description[df.doc_full_name==article].tolist()[0]
         article_id = df.article_id[df.doc_full_name==article].tolist()[0]
         df = df.append({'user_id': id, 'article_id':article_id, 'doc_full_name': article, 'link':link, 'doc_description':descr}, ignore_index=True)
-        new_entry = table(user_id=id, article_id=article_id, doc_full_name=article, doc_description=descr, link=link)
-        session.add(new_entry)
+        session.execute(table.insert().values(user_id=id, article_id=article_id, doc_full_name=article, doc_description=descr, link=link))
         session.commit()
 
     user = User.query.filter_by(id=id).all()
