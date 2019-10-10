@@ -96,8 +96,9 @@ def updatedatabase(subpath, id, article):
     global df
     if article not in df.doc_full_name[df.user_id==id].tolist():
         # Add a new row to both the dataframe and database table
-        # to record that the user has read this article now
-        link = df.link[df.doc_full_name==article].tolist()[0]
+        # to record that the user has read the article
+        link = subpath
+        print(df[df.doc_full_name==article])
         descr = df.doc_description[df.doc_full_name==article].tolist()[0]
         article_id = df.article_id[df.doc_full_name==article].tolist()[0]
         df = df.append({'user_id': id, 'article_id':article_id, 'doc_full_name': article, 'link':link, 'doc_description':descr}, ignore_index=True)
