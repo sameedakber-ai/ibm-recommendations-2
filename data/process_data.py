@@ -1,3 +1,4 @@
+# Import libraries
 import numpy as np
 import pandas as pd
 pd.options.mode.chained_assignment = None
@@ -42,11 +43,14 @@ no_title_ids = df_merged.article_id[df_merged.doc_full_name.isnull()].unique().t
 for id in no_title_ids:
     title = df.title[df.article_id == id].tolist()[0]
     df_merged.doc_full_name[df_merged.article_id == id] = title
+
+# Fill in missing descriptions with empty string
 df_merged.doc_description[df_merged.doc_description.isnull()] = ''
 
+# Make subset of merged dataframe and drop all duplicates
 df_subset = df_merged[['article_id', 'doc_full_name', 'doc_description']].drop_duplicates(keep='first')
 
-# Extract article links through google searches
+# Extract article links through google searches for all articles in the subset dataframe
 doc_identifier = df_subset.doc_full_name + ' ' + df_subset.doc_description
 def extract_link(text):
     try:
@@ -56,7 +60,9 @@ def extract_link(text):
     return link
 df_subset['link'] = doc_identifier.progress_apply(extract_link)
 
+# Distribute links to all rows of the merged dataframe
 df_merged['link'] = df_merged.article_id.apply(lambda x: df_subset.link[df_subset.article_id==x].tolist()[0])
+
 # Save data to database
 engine = create_engine('sqlite:///data/data.db')
 df_merged.to_sql('user-article-interactions', engine, index=False, if_exists='replace')
