@@ -35,14 +35,19 @@ def temp():
 
 @app.route('/user-<int:userid>', methods=['POST', 'GET'])
 def welcomeuser(userid):
+    if (df.user_id==userid).sum() >= 10:
         recommender = Collaborative(df, userid)
         recs = recommender.make_collaborative_recs(15)
-        recent = User.query.filter_by(id=int(userid)).order_by(desc(User.time)).all()
-        rec_art = [rec.article for rec in recent]
-        rec_time = [rec.time for rec in recent]
-        rec_link = df.link[df.doc_full_name.isin(rec_art)].drop_duplicates(keep='first').tolist()
-        result = list(zip(rec_art, rec_time, rec_link))[:5]
-        return render_template('user.html', user_id=userid, recs=recs, result=result)
+    else:
+        user_articles = df.doc_full_name[df.user_id==userid].unique().tolist()
+        recommender = Content(df, userid, user_articles)
+        recs = recommender.make_content_recs(15)
+    recent = User.query.filter_by(id=int(userid)).order_by(desc(User.time)).all()
+    rec_art = [rec.article for rec in recent]
+    rec_time = [rec.time for rec in recent]
+    rec_link = df.link[df.doc_full_name.isin(rec_art)].drop_duplicates(keep='first').tolist()
+    result = list(zip(rec_art, rec_time, rec_link))[:5]
+    return render_template('user.html', user_id=userid, recs=recs, result=result)
 
 
 @app.route('/newuser-<int:userid>', methods=['POST', 'GET'])
@@ -58,6 +63,7 @@ def updatedatabase(subpath, id, article):
         descr = df.doc_description[df.doc_full_name==article].tolist()[0]
         article_id = df.article_id[df.doc_full_name==article].tolist()[0]
         df = df.append({'user_id': id, 'article_id':article_id, 'doc_full_name': article, 'link':link, 'doc_description':descr}, ignore_index=True)
+
     user = User.query.filter_by(id=id).all()
     if article not in [data.article for data in user]:
         time = datetime.now()
