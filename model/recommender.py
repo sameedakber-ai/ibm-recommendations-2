@@ -1,25 +1,3 @@
-import numpy as np
-import pandas as pd
-from sqlalchemy import create_engine
-import cloudpickle
-
-# Import NLP and ML libraries
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize, sent_tokenize
-nltk.download(['stopwords', 'punkt', 'averaged_perceptron_tagger', 'wordnet'])
-
-from sklearn.pipeline import Pipeline, FeatureUnion
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-
-import re
-
-
-# Read data from database table
-engine = create_engine('sqlite:///data/data.db')
-df = pd.read_sql_table('user-article-interactions', engine)
-
 # Create collaborative filtering class
 class Collaborative:
     def __init__(self, df, user_id):
