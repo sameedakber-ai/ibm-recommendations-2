@@ -21,7 +21,7 @@ by [IBM](https://dataplatform.cloud.ibm.com/home?context=wdp)
 
 ## Tech Stack
 
-Python, SQL, scikit-learn, pandas, flask
+Python (scikit-learn, pandas, flask), SQL (sqlalchemy, ORM)
 
 
 ## Description
