@@ -2,44 +2,92 @@
 import numpy as np
 import pandas as pd
 
-# Import NLP and ML libraries
+# Import Natural Language Processing Libraries
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize, sent_tokenize
-nltk.download(['stopwords', 'punkt', 'averaged_perceptron_tagger', 'wordnet'])
+nltk.download(['stopwords', 'punkt', 'averaged_perceptron_tagger', 'wordnet'], quiet=True)
+import re
 
+# Import Machine Learning libraries
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
-import re
+# Import OS and pickling libraries
 import cloudpickle
-
 import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Create collaborative filtering class
 class Collaborative:
+    """
+    User-user collaborative filtering recommender system
+
+    Attributes:
+        df (pandas dataframe): user-article interaction data with user id,
+            article id, title, description and link
+        user_id (int): integer identifier for users
+
+    Methods:
+        get_user_by_item : generate a user-by-item matrix
+        get_top_similar_users: for a user, get users with highest cosine similarity with user
+        get_most_viewed_articles: sort a user's article database by the popularity of articles
+        make_collaborative_recs: get the most popular articles from the most similar users
+
+    """
     def __init__(self, df, user_id):
         self.df = df.dropna()
         self.user_id = user_id
 
     def get_user_by_item(self):
+        """Function to generate user-item matrix
+
+        Args:
+            None
+
+        Returns:
+            pandas dataframe where 1 indicates article is read and 0 that it is not
+        """
         self.df['ones'] = 1
         user_item_matrix = self.df.groupby(['user_id', 'article_id']).mean().ones.unstack(level=1)
         user_item_matrix[user_item_matrix.isnull()] = 0.0
         return user_item_matrix
 
     def get_top_similar_users(self):
+        """Function to find users with highest cosine similarity to a particular user
+
+        Args:
+            None
+
+        Returns:
+            similar users sorted by the level of cosine similarity
+        """
         user_by_article = self.get_user_by_item()
         similarity = user_by_article.drop(self.user_id, axis=0).apply(lambda x: np.dot(x, user_by_article.loc[self.user_id]), axis=1)
         return similarity.sort_values(ascending=False).index.tolist()
 
     def get_most_viewed_articles(self, user_id):
+        """Function to sort user read articles by overall popularity among all users
+
+        Args:
+            user_id (int): integer identifier for users
+
+        Returns:
+            sorted list of user read articles
+        """
         article_counts = self.df.article_id[self.df.user_id == user_id].value_counts()
         return article_counts.sort_values(ascending=False).index.tolist()
 
     def make_collaborative_recs(self, n_rec = 10):
+        """Function to get the most popular articles from the most similar users
+
+        Args:
+            n_rec (int): number of recommendations to make
+
+        Returns:
+              list of (title, description, link) tuples of recommended articles
+        """
         similar_users = self.get_top_similar_users()
         articles_read = self.get_most_viewed_articles(self.user_id)
         recommendations = []
@@ -67,13 +115,28 @@ class Collaborative:
 
 # Make content based recommender system
 class Content:
+    """
+    Content based recommender system to make article recommendations
+
+    Attributes:
+        df (pandas dataframe): user-article interaction data with user id,
+            article id, title, description and link
+        user_articles (list): list of user read articles
+        articles (list): list of recently read articles
+
+    Methods:
+         tokenize: get tokenized version of some text
+         get_bag_of_words: generate a normalized bag of words matrix using all words across all documents
+         make_content_recs: get articles most similar to recently read articles
+    """
     def __init__(self, df, user_id, articles):
         self.user_articles = df.doc_full_name[df.user_id==user_id].unique().tolist()
         self.df = df[['doc_full_name', 'doc_description', 'link']].drop_duplicates(keep='first').reset_index(drop=True)
         self.articles = articles
 
     def tokenize(self, text):
-        '''
+        '''Function to tokenize some text
+
         INPUT:
         text - (str) raw string of some text
 
@@ -90,7 +153,8 @@ class Content:
         return clean_tokens
 
     def get_bag_of_words(self):
-        '''
+        '''Function to generate a bag of words matrix
+
         INPUT:
         df_content - (DataFrame) a pandas dataframe holding information about articles (id, description, title etc)
 
@@ -101,7 +165,6 @@ class Content:
         Generates a bag of words matrix from article titles and descriptions
 
         '''
-
         pipeline = Pipeline([
             ('vect', CountVectorizer(tokenizer=self.tokenize)),
             ('trfm', TfidfTransformer())
@@ -114,6 +177,14 @@ class Content:
         return text_transformed.todense()
 
     def make_content_recs(self, m=10):
+        """Function to find articles with most similarity in content to already read articles
+
+        Args:
+            m (int): number of recommendations to make
+
+        Returns:
+            list of (title, description, links) tuples of recommended articles
+        """
         try:
             similarity_mat = cloudpickle.load(open(os.path.join(dir_path, 'content_similarity'), "rb"))
         except:
@@ -147,16 +218,16 @@ class Content:
         # article_links = df.link[df.article_id.isin(recommendations)].unique().tolist()
         return zip(article_titles, article_descriptions, article_links)
 
-    def get_similar_articles(self, n_recs=10):
-        indicator_mat = self.get_bag_of_words()
-        similarity_mat = np.dot(indicator_mat, indicator_mat.T)
-        article_row = np.where(self.df.article_id == self.article_id)[0][0]
-        similar_article_rows = np.where(similarity_mat[article_row] >= np.percentile(similarity_mat[article_row], 99))[1]
-        similar_articles = self.df.iloc[similar_article_rows].doc_full_name.tolist()
-        return similar_articles[:n_recs]
-
 # Get most popular articles for new users
 def get_top_ranked_articles(df, n=10):
+    """Get the most popular articles regardless of user preferences
+
+    Args:
+        n (int): number of top articles to get
+
+    Returns:
+          list of (title, description, links) tuples of most popular articles
+    """
     top_articles = df.doc_full_name.value_counts().sort_values(ascending=False).index.tolist()[:n]
     links = dict()
     descr = dict()
