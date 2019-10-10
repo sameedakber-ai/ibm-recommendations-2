@@ -69,10 +69,10 @@ class Collaborative:
 
 
 class Content:
-    def __init__(self, df, user_id, article_id=None):
-        self.df = df[['article_id', 'doc_full_name', 'doc_description']].drop_duplicates(keep='first')
-        self.user_id = user_id
-        self.article_id = article_id
+    def __init__(self, df, user_id, articles):
+        self.user_articles = df.doc_full_name[df.user_id==user_id].unique().tolist()
+        self.df = df[['doc_full_name', 'doc_description']].drop_duplicates(keep='first').reset_index(drop=True)
+        self.articles = articles
 
     def tokenize(self, text):
         '''
@@ -109,11 +109,39 @@ class Content:
             ('trfm', TfidfTransformer())
         ])
 
-        df_text = self.df[['doc_description', 'doc_full_name']]
+        df_text = self.df.copy(deep=True)
         df_text[df_text.isnull()] = ''
         article_text = (df_text.doc_description + ' ' + df_text.doc_full_name).values
         text_transformed = pipeline.fit_transform(article_text)
         return text_transformed.todense()
+
+    def make_content_recs(self, m=10):
+        indicator_mat = self.get_bag_of_words()
+        similarity_mat = np.dot(indicator_mat, indicator_mat.T)
+        user_article_rows = self.df[self.df.doc_full_name.isin(self.user_articles)].index
+
+        recommendations = []
+        for article_row in user_article_rows:
+            similar_content_article_rows = np.where(similarity_mat[article_row] >= np.percentile(similarity_mat[article_row], 99))[1]
+            articles = self.df.iloc[similar_content_article_rows].doc_full_name
+            for article in articles:
+                if article not in recommendations and article not in self.user_articles:
+                    if len(recommendations) < m:
+                        recommendations.append(article)
+                if len(recommendations) >= m:
+                    break
+            if len(recommendations) >= m:
+                break
+        article_titles = recommendations
+        links = dict()
+        descr = dict()
+        for title in article_titles:
+            links[title] = df.link[df.doc_full_name == title].tolist()[0]
+            descr[title] = df.doc_description[df.doc_full_name == title].tolist()[0]
+        article_links = links.values()
+        article_descriptions = descr.values()
+        # article_links = df.link[df.article_id.isin(recommendations)].unique().tolist()
+        return zip(article_titles, article_descriptions, article_links)
 
     def get_similar_articles(self, n_recs=10):
         indicator_mat = self.get_bag_of_words()
