@@ -7,7 +7,8 @@ from datetime import  datetime
 # Import data management libraries
 import numpy as np
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy.orm import sessionmaker
 
 # Import NLP and ML libraries
 import nltk
@@ -25,6 +26,10 @@ from model.recommender import *
 
 # Read data from database table
 engine = create_engine('sqlite:///data/data.db')
+md = MetaData(engine)
+table = Table('user-article-interactions', md, autoload=True)
+Session = sessionmaker(bind=engine)
+session = Session()
 df = pd.read_sql_table('user-article-interactions', engine)
 
 # Initialize application and link to database
@@ -86,6 +91,9 @@ def updatedatabase(subpath, id, article):
         descr = df.doc_description[df.doc_full_name==article].tolist()[0]
         article_id = df.article_id[df.doc_full_name==article].tolist()[0]
         df = df.append({'user_id': id, 'article_id':article_id, 'doc_full_name': article, 'link':link, 'doc_description':descr}, ignore_index=True)
+        new_entry = table(user_id=id, article_id=article_id, doc_full_name=article, doc_description=descr, link=link)
+        session.add(new_entry)
+        session.commit()
 
     user = User.query.filter_by(id=id).all()
     if article not in [data.article for data in user]:
