@@ -1,3 +1,20 @@
+# Import data management libraries
+import numpy as np
+import pandas as pd
+
+# Import NLP and ML libraries
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize, sent_tokenize
+nltk.download(['stopwords', 'punkt', 'averaged_perceptron_tagger', 'wordnet'])
+
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+
+import re
+import cloudpickle
+
 # Create collaborative filtering class
 class Collaborative:
     def __init__(self, df, user_id):
@@ -33,23 +50,23 @@ class Collaborative:
                     break
             if len(recommendations) >= n_rec:
                 break
-        article_titles = df.doc_full_name[df.article_id.isin(recommendations)].unique().tolist()
+        article_titles = self.df.doc_full_name[self.df.article_id.isin(recommendations)].unique().tolist()
         #article_descriptions = df.doc_description[df.article_id.isin(recommendations)].unique().tolist()
         links = dict()
         descr = dict()
         for title in article_titles:
-            links[title] = df.link[df.doc_full_name==title].tolist()[0]
-            descr[title] = df.doc_description[df.doc_full_name==title].tolist()[0]
+            links[title] = self.df.link[self.df.doc_full_name==title].tolist()[0]
+            descr[title] = self.df.doc_description[self.df.doc_full_name==title].tolist()[0]
         article_links = links.values()
         article_descriptions = descr.values()
         #article_links = df.link[df.article_id.isin(recommendations)].unique().tolist()
         return zip(article_titles, article_descriptions, article_links)
 
-
+# Make content based recommender system
 class Content:
     def __init__(self, df, user_id, articles):
         self.user_articles = df.doc_full_name[df.user_id==user_id].unique().tolist()
-        self.df = df[['doc_full_name', 'doc_description']].drop_duplicates(keep='first').reset_index(drop=True)
+        self.df = df[['doc_full_name', 'doc_description', 'link']].drop_duplicates(keep='first').reset_index(drop=True)
         self.articles = articles
 
     def tokenize(self, text):
@@ -94,8 +111,14 @@ class Content:
         return text_transformed.todense()
 
     def make_content_recs(self, m=10):
-        indicator_mat = self.get_bag_of_words()
-        similarity_mat = np.dot(indicator_mat, indicator_mat.T)
+        try:
+            similarity_mat = cloudpickle.load(open('content_similarity', "rb"))
+        except:
+            indicator_mat = self.get_bag_of_words()
+            similarity_mat = np.dot(indicator_mat, indicator_mat.T)
+            cloudpickle.dump(similarity_mat, open('content_similarity', "wb"))
+            similarity_mat = cloudpickle.load(open('content_similarity', "rb"))
+
         user_article_rows = self.df[self.df.doc_full_name.isin(self.user_articles)].index
 
         recommendations = []
@@ -114,8 +137,8 @@ class Content:
         links = dict()
         descr = dict()
         for title in article_titles:
-            links[title] = df.link[df.doc_full_name == title].tolist()[0]
-            descr[title] = df.doc_description[df.doc_full_name == title].tolist()[0]
+            links[title] = self.df.link[self.df.doc_full_name == title].tolist()[0]
+            descr[title] = self.df.doc_description[self.df.doc_full_name == title].tolist()[0]
         article_links = links.values()
         article_descriptions = descr.values()
         # article_links = df.link[df.article_id.isin(recommendations)].unique().tolist()
@@ -129,7 +152,8 @@ class Content:
         similar_articles = self.df.iloc[similar_article_rows].doc_full_name.tolist()
         return similar_articles[:n_recs]
 
-def get_top_ranked_articles(n=10):
+# Get most popular articles for new users
+def get_top_ranked_articles(df, n=10):
     top_articles = df.doc_full_name.value_counts().sort_values(ascending=False).index.tolist()[:n]
     links = dict()
     descr = dict()
