@@ -94,15 +94,17 @@ def newuser(userid):
 @app.route('/<path:subpath>-<int:id>-<article>', methods=['GET', 'POST'])
 def updatedatabase(subpath, id, article):
     global df
+
+    # Catch typos in article names
+    article = article.split(str(id) + '-')
+    try:
+        article = article[1]
+    except:
+        article = article[0]
+
     if article not in df.doc_full_name[df.user_id==id].tolist():
         # Add a new row to both the dataframe and database table
         # to record that the user has read the article
-        article = article.split(str(id) + '-')
-        try:
-            article = article[1]
-        except:
-            article = article[0]
-
         link = subpath
         descr = df.doc_description[df.doc_full_name==article].tolist()[0]
         article_id = df.article_id[df.doc_full_name==article].tolist()[0]
