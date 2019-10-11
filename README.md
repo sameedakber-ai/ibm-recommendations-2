@@ -45,6 +45,8 @@ pandas
 numpy
 nltk
 sqlalchemy
+cloudpickle
+gunicorn
 ```
 
 ### Installing
