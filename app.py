@@ -32,6 +32,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 
+currentuser = 0
+
 # Create a User class to define columns and types of user database
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -64,6 +66,10 @@ def temp():
 @app.route('/user-<int:userid>', methods=['POST', 'GET'])
 def welcomeuser(userid):
 
+    global currentuser
+
+    currentuser = userid
+
     if (df.user_id==userid).sum() >= 10:
         # Use collaborative filtering to make recommendations
         recommender = Collaborative(df, userid)
@@ -78,7 +84,11 @@ def welcomeuser(userid):
     recent = User.query.filter_by(id=int(userid)).order_by(desc(User.time)).all()
     rec_art = [rec.article for rec in recent]
     rec_time = [rec.time for rec in recent]
-    rec_link = df.link[df.doc_full_name.isin(rec_art)].drop_duplicates(keep='first').tolist()
+    rec_link = dict()
+    for art in rec_art:
+        rec_link[art] = df.link[df.doc_full_name==art].tolist()[0]
+    rec_link = rec_link.values()
+    #rec_link = df.link[df.doc_full_name.isin(rec_art)].drop_duplicates(keep='first').tolist()
 
     # Get the 5 most recently read articles
     result = list(zip(rec_art, rec_time, rec_link))[:5]
@@ -93,7 +103,9 @@ def newuser(userid):
 # Update read articles when a user clicks on an article link
 @app.route('/<path:subpath>-<int:id>-<article>', methods=['GET', 'POST'])
 def updatedatabase(subpath, id, article):
+
     global df
+    id = currentuser
 
     # Catch typos in article names
     article = article.split(str(id) + '-')
@@ -105,7 +117,7 @@ def updatedatabase(subpath, id, article):
     if article not in df.doc_full_name[df.user_id==id].tolist():
         # Add a new row to both the dataframe and database table
         # to record that the user has read the article
-        link = subpath
+        link = df.link[df.doc_full_name==article].tolist()[0]
         descr = df.doc_description[df.doc_full_name==article].tolist()[0]
         article_id = df.article_id[df.doc_full_name==article].tolist()[0]
         df = df.append({'user_id': id, 'article_id':article_id, 'doc_full_name': article, 'link':link, 'doc_description':descr}, ignore_index=True)
