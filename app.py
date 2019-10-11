@@ -98,6 +98,9 @@ def welcomeuser(userid):
 # Welcome new user by displaying the most popular articles
 @app.route('/newuser-<int:userid>', methods=['POST', 'GET'])
 def newuser(userid):
+
+    global currentuser
+    currentuser = userid
     most_popular_articles = get_top_ranked_articles(df, 10)
     return render_template('newuser.html', recs = most_popular_articles, id=userid)
 
