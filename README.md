@@ -3,6 +3,10 @@
 Analyzing user-article interactions data taken from the IBM Watson studio
 to make tailored recommendations to users
 
+Webapp:
+
+[![Heroku Webapp](static/images/heroku.png "Deploy to heroku")](https://ibm-recommendations.herokuapp.com)
+
 ## Motivation
 
 IBM Watson Studio is home to a large set of curated articles, documents,
