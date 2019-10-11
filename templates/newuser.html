@@ -8,6 +8,7 @@
     <h1 class="text-center">Welcome New user {{ id }}</h1>
     <br>
     <p class="text-center lead font-italic">Here are the top 10 most popular articles among IBM personnel</p>
+    <p class="text-center lead font-italic">Click to read an article and to generate tailored recommendations</p>
     <div class="overflow-auto list-group" style="height: 250px;">
         {% for rec,desc,link in recs %}
             <a href="{{ url_for('updatedatabase', subpath=link, id=id, article=rec) }}" class="list-group-item list-group-item-action flex-column align-items-start">
