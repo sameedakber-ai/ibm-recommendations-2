@@ -21,10 +21,13 @@ by [IBM](https://dataplatform.cloud.ibm.com/home?context=wdp)
 
 ## Tech Stack
 
-Python (scikit-learn, pandas, flask), SQL (sqlalchemy, ORM)
+- python - scikit-learn, pandas, flask
+- SQL - sqlite, sqlalchemy, object-relational mapper
+- html, css, bootstrap, javascript
+
+## Installation
 
 
-## Description
 
 
 
