@@ -32,6 +32,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 
+# Set global current user id
 currentuser = 0
 
 # Create a User class to define columns and types of user database
