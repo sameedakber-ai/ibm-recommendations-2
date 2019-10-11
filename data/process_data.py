@@ -15,8 +15,8 @@ del df_content['Unnamed: 0']
 
 # <----- CLEAN DATA [start] ----->
 # Remove duplicate articles
-df_content.drop_duplicates(inplace=True, keep='first')
-df_content.drop_duplicates(subset='article_id', inplace=True, keep='first')
+df_content = df_content.drop_duplicates(keep='first').reset_index(drop=True)
+df_content = df_content.drop_duplicates(subset='article_id', keep='first').reset_index(drop=True)
 
 # Format matching columns to same type
 df = df.astype({'article_id': int})
@@ -48,7 +48,7 @@ for id in no_title_ids:
 df_merged.doc_description[df_merged.doc_description.isnull()] = ''
 
 # Make subset of merged dataframe and drop all duplicates
-df_subset = df_merged[['article_id', 'doc_full_name', 'doc_description']].drop_duplicates(keep='first')
+df_subset = df_merged[['article_id', 'doc_full_name', 'doc_description']].drop_duplicates(keep='first').reset_index(drop=True)
 
 # Extract article links through google searches for all articles in the subset dataframe
 doc_identifier = df_subset.doc_full_name + ' ' + df_subset.doc_description
