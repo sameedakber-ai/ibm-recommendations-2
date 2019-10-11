@@ -27,7 +27,110 @@ by [IBM](https://dataplatform.cloud.ibm.com/home?context=wdp)
 
 ## Installation
 
+These instructions will get you a copy of the project up and running on your local machine
+for development and testing purposes. See deployment for notes on how to deploy the project
+on heroku.
 
+### Prerequisites
 
+All dependencies for running the application on your local machine are listed in
+requirements.txt. Make a new virtual environment and install the following
+libraries inside this environment
 
+```
+flask
+google
+scikit-learn
+pandas
+numpy
+nltk
+sqlalchemy
+```
 
+### Installing
+
+Clone the repository
+```
+git clone https://github.com/sameedakber-ai/ibm-recommendations-2.git
+```
+
+Create user-article interaction sqlite database
+```
+python data/process_data.py
+``` 
+
+Open python shell in main working directory and set up user database
+```python
+from app import db
+db.create_all()
+```
+
+Run the WebApp
+```
+python app.py
+```
+
+Navigate to the http://127.0.0.1:5000 to access the application on your default browser
+
+## Results
+
+![plot 1](static/images/index.png "webapp 1")
+
+![plot 2](static/images/welcome_back.png "webapp 2")
+
+![plot 3](static/images/recommendation.png "webapp 3")
+
+# Deployment
+
+Login to heroku from command line
+```
+heroku login
+```
+
+Create a heroku app
+```
+heroku create your-unqie-package-name
+```
+
+Commit and push to heroku
+```
+git add .
+git commit -m'your commit message here'
+git push heroku master
+```
+
+Navigate to your heroku dashboard and open the app
+
+## Built With
+
+* [Flask](https://palletsprojects.com/p/flask/) - The web framework used
+* [Heroku](https://dashboard.heroku.com) - Cloud Application Platform
+
+## Authors
+
+* **Sameed Akber** - *ibm-recommendations* - [sameedakber-ai](https://github.com/sameedakber-ai)
+
+## License
+
+Copyright 2019 Sameed Akber
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without
+limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## Acknowledgements
+
+[![Udacity](static/images/udacity.png "udacity logo")](https://www.udacity.com)
+
+[![IBM](static/images/ibm_logo.jpg "figure-eight logo")](https://www.ibm.com/ca-en)
