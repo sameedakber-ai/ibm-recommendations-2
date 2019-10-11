@@ -81,7 +81,7 @@ class Collaborative:
         article_counts = self.df.article_id[self.df.user_id == user_id].value_counts()
         return article_counts.sort_values(ascending=False).index.tolist()
 
-    def make_collaborative_recs(self, n_rec = 10):
+    def make_collaborative_recs(self, n_rec = 30):
         """Function to get the most popular articles from the most similar users
 
         Args:
@@ -178,7 +178,7 @@ class Content:
         text_transformed = pipeline.fit_transform(article_text)
         return text_transformed.todense()
 
-    def make_content_recs(self, m=10):
+    def make_content_recs(self, m=30):
         """Function to find articles with most similarity in content to already read articles
 
         Args:
@@ -221,7 +221,7 @@ class Content:
         return zip(article_titles, article_descriptions, article_links)
 
 # Get most popular articles for new users
-def get_top_ranked_articles(df, n=10):
+def get_top_ranked_articles(df, n=30):
     """Get the most popular articles regardless of user preferences
 
     Args:
